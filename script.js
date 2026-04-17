@@ -238,6 +238,7 @@ const deploymentNotes = document.querySelector("#deployment-notes");
 const eventLog = document.querySelector("#event-log");
 const alarmList = document.querySelector("#alarm-list");
 const reportPreview = document.querySelector("#report-preview");
+const mapOverlayGrid = document.querySelector("#map-overlay-grid");
 
 const detailTitle = document.querySelector("#detail-title");
 const detailStatus = document.querySelector("#detail-status");
@@ -506,6 +507,29 @@ function getReportText() {
   ].join("\n");
 }
 
+function renderMapOverlay() {
+  const filtered = getFilteredRegions();
+  const top = getTopRegions(1)[0];
+  const avg = getAverageRisk(filtered);
+  const stationCount = stationGeoJsonData?.features?.filter((feature) => filtered.some((item) => item.id === feature.properties.regionId)).length ?? 0;
+  mapOverlayGrid.innerHTML = `
+    <article class="map-overlay-card">
+      <span class="mini-label">Harita odağı</span>
+      <strong>${top ? top.shortName : "--"}</strong>
+      <p>${top ? top.threat : "Odak alanı bekleniyor."}</p>
+    </article>
+    <article class="map-overlay-card">
+      <span class="mini-label">Canlı kapsam</span>
+      <strong>${filtered.length} saha</strong>
+      <p>${stationCount} gözlem istasyonu eş zamanlı izleniyor.</p>
+    </article>
+    <article class="map-overlay-card">
+      <span class="mini-label">Ulusal ortalama</span>
+      <strong>${avg}/100</strong>
+      <p>Seçili katmanlarda genel yangın baskısı bu seviyede.</p>
+    </article>`;
+}
+
 function renderMapCards() {
   const filtered = getFilteredRegions();
   ensureActiveRegion(filtered);
@@ -680,10 +704,19 @@ function renderAlarmHistory() {
 function renderReportPreview() {
   const top = getTopRegions(3);
   const scenario = getActiveScenario();
+  const deployment = getNationalSummary(getFilteredRegions()).deployment;
   reportPreview.innerHTML = `
     <strong>${scenario?.label ?? "-"} senaryosu için paylaşılabilir operasyon özeti</strong>
     <p>${top[0] ? `${top[0].name} bugün birincil odak alanıdır.` : "Odak alanı bulunamadı."}</p>
-    <p>${top.map((item) => `${item.shortName} (${item.riskScore})`).join(" · ")}</p>`;
+    <div class="report-grid">
+      <article class="report-row"><span class="mini-label">Ulusal risk</span><p>${getAverageRisk(getFilteredRegions())}/100</p></article>
+      <article class="report-row"><span class="mini-label">Senaryo aralığı</span><p>${scenario?.timeRange ?? "-"}</p></article>
+      <article class="report-row"><span class="mini-label">Müdahale ekibi</span><p>${deployment.teams} ekip</p></article>
+      <article class="report-row"><span class="mini-label">Hava desteği</span><p>${deployment.helicopters} helikopter</p></article>
+    </div>
+    <div class="report-list">
+      ${top.map((item, index) => `<article class="report-list-item"><span>${index + 1}. ${item.shortName}</span><span>${item.riskScore}/100 · ${riskLabels[item.riskLevel]}</span></article>`).join("")}
+    </div>`;
 }
 
 function renderWeatherStatus() {
@@ -897,6 +930,7 @@ function downloadReport() {
 
 function renderAll() {
   renderMapCards();
+  renderMapOverlay();
   renderExecutiveOverview();
   renderTrendChart();
   renderScenarioPanel();

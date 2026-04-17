@@ -582,6 +582,7 @@ h2 {
 
 .map-shell {
   margin-top: 20px;
+  position: relative;
 }
 
 .leaflet-map {
@@ -590,6 +591,40 @@ h2 {
   overflow: hidden;
   border: 1px solid rgba(77, 110, 83, 0.12);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), 0 14px 30px rgba(52, 81, 56, 0.08);
+}
+
+.map-overlay-grid {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  right: 18px;
+  z-index: 500;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  pointer-events: none;
+}
+
+.map-overlay-card {
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: rgba(248, 252, 246, 0.9);
+  border: 1px solid rgba(88, 120, 90, 0.12);
+  box-shadow: 0 12px 26px rgba(53, 84, 57, 0.12);
+  backdrop-filter: blur(10px);
+}
+
+.map-overlay-card strong {
+  display: block;
+  margin-top: 6px;
+  font-family: "Sora", sans-serif;
+  font-size: 1.35rem;
+}
+
+.map-overlay-card p {
+  margin-top: 6px;
+  color: var(--muted);
+  line-height: 1.5;
 }
 
 .leaflet-container {
@@ -960,6 +995,86 @@ h2 {
   border: 1px solid rgba(88, 120, 90, 0.08);
 }
 
+.report-preview strong {
+  display: block;
+  font-size: 1.08rem;
+}
+
+.report-grid {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.report-row {
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.48);
+  border: 1px solid rgba(88, 120, 90, 0.08);
+}
+
+.report-list {
+  margin-top: 16px;
+  display: grid;
+  gap: 10px;
+}
+
+.report-list-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.44);
+  border: 1px solid rgba(88, 120, 90, 0.08);
+}
+
+.report-list-item span:last-child {
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+@media print {
+  body {
+    background: #ffffff;
+  }
+
+  .hero,
+  .topbar,
+  .hero-actions,
+  .map-toolbar,
+  .map-stage,
+  .report-actions,
+  .event-log,
+  .alarm-list,
+  .directorate-list,
+  .incident-list {
+    display: none !important;
+  }
+
+  .page-shell {
+    width: 100%;
+    padding: 0;
+  }
+
+  .panel,
+  .hero {
+    box-shadow: none;
+    border: 1px solid #d7e2d6;
+  }
+
+  .map-overlay-grid {
+    position: static;
+    margin-top: 16px;
+  }
+
+  .leaflet-map {
+    min-height: 340px;
+    box-shadow: none;
+  }
+}
+
 .span-3 {
   grid-column: span 3;
 }
@@ -1029,7 +1144,9 @@ h2 {
   .directorate-list,
   .deployment-grid,
   .report-actions,
-  .trend-chart {
+  .trend-chart,
+  .report-grid,
+  .map-overlay-grid {
     grid-template-columns: 1fr;
   }
 
