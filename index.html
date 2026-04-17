@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orman Yangını Risk Analiz ve İzleme Sistemi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  >
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="page-shell">
+    <header class="hero">
+      <div class="masthead">
+        <div class="identity">
+          <div class="brand-mark">YA</div>
+          <div>
+            <p class="eyebrow">Abidin CAN · GIS Ürün Prototipi</p>
+            <strong class="identity-title">Yangın Risk Intelligence</strong>
+          </div>
+        </div>
+        <nav class="topbar">
+          <a href="#insight-panel">Kontroller</a>
+          <a href="#map-panel">Harita</a>
+          <a href="#priority-list">Öncelik</a>
+          <a href="#directorate-list">OGM Ağı</a>
+          <a href="#executive-note">Özet</a>
+        </nav>
+      </div>
+
+      <div class="hero-grid">
+        <section class="hero-copy">
+          <div class="hero-status-row">
+            <span class="topbar-badge">Canlı Risk Motoru</span>
+            <span class="hero-date-badge">Leaflet + Senaryo + Meteoroloji</span>
+          </div>
+          <h1>Orman Yangını Risk Analiz ve İzleme Sistemi</h1>
+          <p class="intro">
+            OGM taşra modelini, canlı meteoroloji verisini ve senaryo tabanlı karar
+            destek akışlarını birleştiren portföy seviyesi bir GIS ürün konsepti.
+          </p>
+
+          <div class="hero-actions">
+            <button class="primary-action" type="button" data-jump="map-panel">Haritayı Aç</button>
+            <button class="secondary-action" type="button" data-jump="weather-source-status">Canlı Veriyi İncele</button>
+          </div>
+
+          <div class="hero-metrics">
+            <article>
+              <span id="critical-count">0</span>
+              <p>Kritik Alan</p>
+            </article>
+            <article>
+              <span id="avg-risk">0</span>
+              <p>Ortalama Skor</p>
+            </article>
+            <article>
+              <span id="watch-count">0</span>
+              <p>Yakından İzlenen</p>
+            </article>
+          </div>
+        </section>
+
+        <aside class="hero-stack">
+          <article class="signal-card">
+            <p class="card-label">Canlı Bakış</p>
+            <div class="signal-score">
+              <strong id="hero-score">78</strong>
+              <span>/100</span>
+            </div>
+            <p id="hero-summary" class="signal-summary">
+              Ege ve Akdeniz kuşağında sıcaklık, rüzgâr ve düşük nem etkisiyle yüksek risk görülüyor.
+            </p>
+            <ul class="signal-list" id="hero-list"></ul>
+          </article>
+
+          <article class="mini-feature-card">
+            <p class="mini-label">Ürün Odağı</p>
+            <strong>Kamu verisi hissi veren ürün deneyimi</strong>
+            <p>Harita katmanları, OGM ağ modeli ve müdahale dili tek bir ekranda çalışır.</p>
+          </article>
+        </aside>
+      </div>
+
+      <section class="capability-rail">
+        <article class="capability-card">
+          <p class="mini-label">Ürün Modülü</p>
+          <strong>Canlı Risk Haritası</strong>
+          <p>Seçilen bölge için hava, risk skoru ve müdahale akışı aynı anda okunur.</p>
+        </article>
+        <article class="capability-card">
+          <p class="mini-label">Veri Katmanı</p>
+          <strong>30 OGM Bölge Müdürlüğü</strong>
+          <p>Ulusal ağ yapısı, seçili işletme müdürlükleriyle birlikte tek deneyimde sunulur.</p>
+        </article>
+        <article class="capability-card">
+          <p class="mini-label">Karar Destek</p>
+          <strong>Senaryo Motoru</strong>
+          <p>Sabah, öğlen ve akşam senaryoları risk dağılımını otomatik değiştirir.</p>
+        </article>
+        <article class="capability-card">
+          <p class="mini-label">Portföy Değeri</p>
+          <strong>Gerçekçi Kamu Prototipi</strong>
+          <p>Arayüz gösterisinden fazlasını yapar; ürün mantığı ve veri ilişkisi kurar.</p>
+        </article>
+      </section>
+    </header>
+
+    <main class="dashboard">
+      <section class="panel filters-panel" id="insight-panel">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Analiz Kontrolleri</p>
+            <h2>Risk Katmanları</h2>
+          </div>
+          <p class="panel-note">Seçilen senaryo, bölge ve operasyon durumu tüm paneli anında günceller.</p>
+        </div>
+
+        <div class="filter-grid">
+          <label>
+            Operasyon Senaryosu
+            <select id="scenario-filter"></select>
+          </label>
+          <label>
+            Bölge
+            <select id="region-filter"></select>
+          </label>
+          <label>
+            Risk Seviyesi
+            <select id="risk-filter">
+              <option value="all">Tüm Seviyeler</option>
+              <option value="critical">Kritik</option>
+              <option value="high">Yüksek</option>
+              <option value="medium">Orta</option>
+            </select>
+          </label>
+          <label>
+            Operasyon Durumu
+            <select id="status-filter">
+              <option value="all">Tüm Durumlar</option>
+              <option value="active-watch">Aktif İzleme</option>
+              <option value="ready-response">Müdahale Hazır</option>
+              <option value="routine">Rutin Takip</option>
+            </select>
+          </label>
+        </div>
+      </section>
+
+      <section class="insight-grid primary-grid">
+        <article class="panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Günlük Operasyon Akışı</p>
+              <h2 id="scenario-title">Senaryo yükleniyor</h2>
+            </div>
+            <p class="panel-note" id="scenario-summary">Seçilen zaman dilimi için ulusal risk ve saha notları güncellenir.</p>
+          </div>
+          <div class="scenario-band">
+            <div class="scenario-score">
+              <span class="mini-label">Ulusal Risk</span>
+              <strong id="scenario-score">--</strong>
+            </div>
+            <div class="scenario-time">
+              <span class="mini-label">Zaman Aralığı</span>
+              <strong id="scenario-time">--</strong>
+            </div>
+          </div>
+          <ul class="scenario-alerts" id="scenario-alerts"></ul>
+        </article>
+
+        <article class="panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Canlı Bülten</p>
+              <h2>Meteoroloji ve Saha Notları</h2>
+            </div>
+          </div>
+          <div class="weather-source-status" id="weather-source-status">Canlı meteoroloji verisi bağlanıyor.</div>
+          <div class="bulletin-cards" id="bulletin-cards"></div>
+        </article>
+      </section>
+
+      <section class="content-grid">
+        <section class="panel map-panel" id="map-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Canlı Risk Haritası</p>
+              <h2>Türkiye Yangın Yoğunluk Kuşakları</h2>
+            </div>
+            <p class="panel-note">Bölge kartlarına tıklayarak detay analizi ve harita vurgusunu güncelle.</p>
+          </div>
+
+          <div class="map-legend">
+            <span><i class="legend critical"></i>Kritik</span>
+            <span><i class="legend high"></i>Yüksek</span>
+            <span><i class="legend medium"></i>Orta</span>
+          </div>
+
+          <div class="map-toolbar">
+            <button class="layer-toggle is-on" type="button" data-layer-toggle="regions" aria-pressed="true">Risk Bölgeleri</button>
+            <button class="layer-toggle is-on" type="button" data-layer-toggle="stations" aria-pressed="true">Gözlem İstasyonları</button>
+            <button class="layer-toggle is-on" type="button" data-layer-toggle="directorates" aria-pressed="true">Tüm OGM Bölgeleri</button>
+            <div class="map-toolbar-note" id="map-toolbar-note">6 risk bölgesi ve 8 gözlem istasyonu izleniyor.</div>
+          </div>
+
+          <div class="map-shell">
+            <div class="leaflet-map" id="leaflet-map" aria-label="Yangın risk haritası"></div>
+            <div class="map-stage" id="map-stage"></div>
+          </div>
+        </section>
+
+        <aside class="panel detail-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Bölge Profili</p>
+              <h2 id="detail-title">Analiz bekleniyor</h2>
+            </div>
+            <p class="panel-note" id="detail-status">Haritadan bir alan seç.</p>
+          </div>
+
+          <div class="detail-score-wrap">
+            <div class="detail-score" id="detail-score">--</div>
+            <div>
+              <p class="mini-label">Baskın Tehdit</p>
+              <strong id="detail-threat">-</strong>
+            </div>
+          </div>
+
+          <div class="detail-stats" id="detail-stats"></div>
+
+          <div class="detail-section">
+            <p class="mini-label">Önerilen Aksiyonlar</p>
+            <ul id="detail-actions"></ul>
+          </div>
+        </aside>
+      </section>
+
+      <section class="insight-grid secondary-grid">
+        <article class="panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Müdahale Önceliği</p>
+              <h2>Operasyon Sıralaması</h2>
+            </div>
+          </div>
+          <div id="priority-list" class="priority-list"></div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Sistem Özetleri</p>
+              <h2>Analitik Çıkarımlar</h2>
+            </div>
+          </div>
+          <div id="insight-cards" class="insight-cards"></div>
+        </article>
+      </section>
+
+      <section class="insight-grid tertiary-grid">
+        <article class="panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Ulusal OGM Ağı</p>
+              <h2>Bölge Müdürlükleri</h2>
+            </div>
+          </div>
+          <div class="directorate-list" id="directorate-list"></div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Geçmiş Olaylar</p>
+              <h2>Referans Yangın Özetleri</h2>
+            </div>
+          </div>
+          <div class="incident-list" id="incident-list"></div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Karar Destek Notu</p>
+              <h2>Yönetici Özeti</h2>
+            </div>
+          </div>
+          <div class="executive-note" id="executive-note"></div>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+  ></script>
+  <script src="script.js"></script>
+</body>
+</html>

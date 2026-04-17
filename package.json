@@ -1,0 +1,8 @@
+{
+  "name": "orman-yangini-risk-analiz-ve-izleme-sistemi",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "lint": "node scripts/lint.mjs"
+  }
+}
