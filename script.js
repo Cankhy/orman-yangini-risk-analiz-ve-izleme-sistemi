@@ -224,6 +224,7 @@ const regionFilter = document.querySelector("#region-filter");
 const scenarioFilter = document.querySelector("#scenario-filter");
 const riskFilter = document.querySelector("#risk-filter");
 const statusFilter = document.querySelector("#status-filter");
+const timeFilter = document.querySelector("#time-filter");
 const mapStage = document.querySelector("#map-stage");
 const priorityList = document.querySelector("#priority-list");
 const insightCards = document.querySelector("#insight-cards");
@@ -239,6 +240,8 @@ const eventLog = document.querySelector("#event-log");
 const alarmList = document.querySelector("#alarm-list");
 const reportPreview = document.querySelector("#report-preview");
 const mapOverlayGrid = document.querySelector("#map-overlay-grid");
+const historicalTable = document.querySelector("#historical-table");
+const historicalSummary = document.querySelector("#historical-summary");
 
 const detailTitle = document.querySelector("#detail-title");
 const detailStatus = document.querySelector("#detail-status");
@@ -246,6 +249,7 @@ const detailScore = document.querySelector("#detail-score");
 const detailThreat = document.querySelector("#detail-threat");
 const detailStats = document.querySelector("#detail-stats");
 const detailActions = document.querySelector("#detail-actions");
+const detailBoundary = document.querySelector("#detail-boundary");
 
 const criticalCount = document.querySelector("#critical-count");
 const watchCount = document.querySelector("#watch-count");
@@ -271,6 +275,7 @@ const focusRegionNote = document.querySelector("#focus-region-note");
 
 const downloadReportButton = document.querySelector("#download-report");
 const printReportButton = document.querySelector("#print-report");
+const reportMeta = document.querySelector("#report-meta");
 
 const statusLabels = {
   "active-watch": "Aktif izleme",
@@ -390,7 +395,8 @@ function getScenarioAdjustedRegion(item) {
   const override = scenario?.overrides?.[item.id] ?? {};
   const liveWeather = liveWeatherByRegion[item.id];
   const baseRegion = { ...item, ...override };
-  const liveRiskScore = clamp((baseRegion.riskScore ?? item.riskScore) + computeLiveRiskAdjustment(liveWeather), 35, 98);
+  const timeWeight = { "24h": 0, "7d": -4, "30d": -8 }[timeFilter?.value ?? "24h"];
+  const liveRiskScore = clamp((baseRegion.riskScore ?? item.riskScore) + computeLiveRiskAdjustment(liveWeather) + timeWeight, 35, 98);
   const liveThreat = liveWeather ? `${baseRegion.threat}. Anlık durum: ${describeWeatherCode(liveWeather.weatherCode).toLowerCase()}` : baseRegion.threat;
   return {
     ...baseRegion,
@@ -481,6 +487,25 @@ function createAlarmHistory(filtered) {
     }));
 }
 
+function createHistoricalMatrix(filtered) {
+  const scopeFactor = { "24h": 1, "7d": 3, "30d": 6 }[timeFilter?.value ?? "24h"];
+  return filtered
+    .slice()
+    .sort((a, b) => b.riskScore - a.riskScore)
+    .map((item) => ({
+      name: item.shortName,
+      province: item.province,
+      incidents: item.watchZones * scopeFactor + Math.round(item.riskScore / 10),
+      responseMinutes: Math.max(14, 42 - item.deployment.teams * 3),
+      severity: `${Math.round(item.riskScore * 0.8)}/100`,
+      season: item.macroRegion
+    }));
+}
+
+function getTimeFilterLabel() {
+  return timeFilter.value === "24h" ? "Son 24 saat" : timeFilter.value === "7d" ? "Son 7 gün" : "Son 30 gün";
+}
+
 function getReportText() {
   const filtered = getFilteredRegions();
   const scenario = getActiveScenario();
@@ -565,8 +590,15 @@ function renderDetail() {
     <article><p class="mini-label">Esinti</p><span>${selected.gust ?? selected.wind} km/sa</span></article>
     <article><p class="mini-label">Sıcaklık</p><span>${selected.temperature}°C</span></article>
     <article><p class="mini-label">İzleme noktası</p><span>${selected.watchZones}</span></article>
-    <article><p class="mini-label">Şeflik sayısı</p><span>${selected.chiefdomCount}</span></article>`;
+    <article><p class="mini-label">Şeflik sayısı</p><span>${selected.chiefdomCount}</span></article>
+    <article><p class="mini-label">Sınır tipi</p><span>İşletme müdürlüğü modeli</span></article>
+    <article><p class="mini-label">Komşu koridor</p><span>${selected.macroRegion} geçiş hattı</span></article>`;
   detailActions.innerHTML = selected.actions.map((action) => `<li>${action}</li>`).join("");
+  detailBoundary.innerHTML = `
+    <p class="mini-label">Sınır ve kapsam notu</p>
+    <strong>${selected.sourceLabel}</strong>
+    <p>${selected.districtCoverage}</p>
+  `;
 }
 
 function renderExecutiveOverview() {
@@ -705,6 +737,31 @@ function renderReportPreview() {
   const top = getTopRegions(3);
   const scenario = getActiveScenario();
   const deployment = getNationalSummary(getFilteredRegions()).deployment;
+  const generatedAt = new Intl.DateTimeFormat("tr-TR", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
+  }).format(new Date());
+  reportMeta.innerHTML = `
+    <article class="report-meta-item">
+      <span class="mini-label">Bülten no</span>
+      <strong>YR-${new Date().getFullYear()}-${String(top.length || 1).padStart(2, "0")}</strong>
+    </article>
+    <article class="report-meta-item">
+      <span class="mini-label">Üretim zamanı</span>
+      <strong>${generatedAt}</strong>
+    </article>
+    <article class="report-meta-item">
+      <span class="mini-label">Veri kaynağı</span>
+      <strong>Senaryo + canlı meteoroloji + OGM model kurgusu</strong>
+    </article>
+    <article class="report-meta-item">
+      <span class="mini-label">Kapsam</span>
+      <strong>${getTimeFilterLabel()} · ${getFilteredRegions().length} saha</strong>
+    </article>
+  `;
   reportPreview.innerHTML = `
     <strong>${scenario?.label ?? "-"} senaryosu için paylaşılabilir operasyon özeti</strong>
     <p>${top[0] ? `${top[0].name} bugün birincil odak alanıdır.` : "Odak alanı bulunamadı."}</p>
@@ -713,10 +770,48 @@ function renderReportPreview() {
       <article class="report-row"><span class="mini-label">Senaryo aralığı</span><p>${scenario?.timeRange ?? "-"}</p></article>
       <article class="report-row"><span class="mini-label">Müdahale ekibi</span><p>${deployment.teams} ekip</p></article>
       <article class="report-row"><span class="mini-label">Hava desteği</span><p>${deployment.helicopters} helikopter</p></article>
+      <article class="report-row"><span class="mini-label">Zaman perspektifi</span><p>${getTimeFilterLabel()}</p></article>
+      <article class="report-row"><span class="mini-label">Sınır kurgusu</span><p>İşletme müdürlüğü modeli</p></article>
     </div>
     <div class="report-list">
       ${top.map((item, index) => `<article class="report-list-item"><span>${index + 1}. ${item.shortName}</span><span>${item.riskScore}/100 · ${riskLabels[item.riskLevel]}</span></article>`).join("")}
     </div>`;
+}
+
+function renderHistoricalSummary() {
+  const rows = createHistoricalMatrix(getFilteredRegions());
+  const totalIncidents = rows.reduce((sum, row) => sum + row.incidents, 0);
+  const averageResponse = rows.length ? Math.round(rows.reduce((sum, row) => sum + row.responseMinutes, 0) / rows.length) : 0;
+  const highestPressure = rows[0];
+  historicalSummary.innerHTML = `
+    <article class="historical-summary-card">
+      <span class="mini-label">İnceleme penceresi</span>
+      <strong>${getTimeFilterLabel()}</strong>
+      <p>Geçmiş olay yoğunluğu seçili zaman perspektifine göre normalize edilir.</p>
+    </article>
+    <article class="historical-summary-card">
+      <span class="mini-label">Toplam referans olay</span>
+      <strong>${totalIncidents}</strong>
+      <p>Seçili sahalarda yangın davranışı modeline işlenen kümülatif referans yükü.</p>
+    </article>
+    <article class="historical-summary-card">
+      <span class="mini-label">Ortalama ilk müdahale</span>
+      <strong>${averageResponse} dk</strong>
+      <p>${highestPressure ? `${highestPressure.province} hattı en yüksek baskı sahası olarak ayrışıyor.` : "Veri bekleniyor."}</p>
+    </article>
+  `;
+}
+
+function renderHistoricalTable() {
+  const rows = createHistoricalMatrix(getFilteredRegions());
+  historicalTable.innerHTML = rows.map((row) => `
+    <article class="historical-row">
+      <div><span class="historical-head">Saha</span><strong>${row.province} · ${row.name}</strong></div>
+      <div><span class="historical-head">Geçmiş olay</span><span class="historical-value">${row.incidents}</span></div>
+      <div><span class="historical-head">İlk müdahale</span><span class="historical-value">${row.responseMinutes} dk</span></div>
+      <div><span class="historical-head">Sezon baskısı</span><span class="historical-value">${row.severity}</span></div>
+      <div><span class="historical-head">Koridor</span><span class="historical-value">${row.season}</span></div>
+    </article>`).join("");
 }
 
 function renderWeatherStatus() {
@@ -946,6 +1041,8 @@ function renderAll() {
   renderExecutiveNote();
   renderEventLog();
   renderAlarmHistory();
+  renderHistoricalSummary();
+  renderHistoricalTable();
   renderReportPreview();
   renderHero();
   renderGeoJsonLayer();
@@ -961,7 +1058,7 @@ document.querySelectorAll("[data-jump]").forEach((button) => {
   });
 });
 
-[regionFilter, riskFilter, statusFilter].forEach((element) => {
+[regionFilter, riskFilter, statusFilter, timeFilter].forEach((element) => {
   element.addEventListener("change", renderAll);
 });
 

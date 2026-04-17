@@ -184,6 +184,14 @@
               <option value="routine">Rutin takip</option>
             </select>
           </label>
+          <label>
+            Zaman perspektifi
+            <select id="time-filter">
+              <option value="24h">Son 24 saat</option>
+              <option value="7d">Son 7 gün</option>
+              <option value="30d">Son 30 gün</option>
+            </select>
+          </label>
         </div>
       </section>
 
@@ -240,6 +248,8 @@
             <p class="mini-label">Önerilen aksiyonlar</p>
             <ul id="detail-actions"></ul>
           </div>
+
+          <div class="detail-boundary" id="detail-boundary"></div>
         </aside>
       </section>
 
@@ -388,6 +398,18 @@
         </article>
       </section>
 
+      <section class="panel historical-panel">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Tarihsel matris</p>
+            <h2>Yangın geçmişi ve risk referansları</h2>
+          </div>
+          <p class="panel-note">İl bazlı geçmiş olay baskısı, müdahale süresi ve sezon yoğunluğu birlikte gösterilir.</p>
+        </div>
+        <div class="historical-summary" id="historical-summary"></div>
+        <div class="historical-table" id="historical-table"></div>
+      </section>
+
       <section class="panel report-panel" id="report-panel">
         <div class="panel-heading">
           <div>
@@ -400,6 +422,7 @@
           <button class="report-action primary-action" type="button" id="download-report">Operasyon özetini indir</button>
           <button class="report-action secondary-action" type="button" id="print-report">Yazdırılabilir görünüm</button>
         </div>
+        <div class="report-meta" id="report-meta"></div>
         <div class="report-preview" id="report-preview"></div>
       </section>
     </main>
