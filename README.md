@@ -1,26 +1,27 @@
 # Orman Yangını Risk Analiz ve İzleme Sistemi
 
-Harita tabanlı, canlı meteoroloji ile beslenen ve OGM taşra modelini referans alan bir GIS karar destek prototipi.
+Harita tabanlı, canlı meteoroloji ile beslenen ve OGM taşra modelini referans alan gelişmiş bir GIS karar destek prototipi.
 
-Bu proje, klasik bir arayüz demosu değil. Amaç; yangın riski, müdahale önceliği, bölgesel izleme ve taşra yapısını aynı ürün akışında gösterebilen güçlü bir kamu teknolojisi vitrini ortaya koymak.
+Bu proje yalnızca görsel bir arayüz denemesi değildir. Amaç; yangın riski, müdahale önceliği, ekip konuşlanması, olay günlüğü, alarm geçmişi ve yönetici özeti gibi kurumsal karar destek bileşenlerini aynı ürün akışında gösterebilen güçlü bir kamu teknolojisi vitrini üretmektir.
 
 ## Proje Ne Gösteriyor?
 
 - Harita tabanlı risk analizi kurgulayabildiğimi
 - GIS odaklı veri modelini arayüze taşıyabildiğimi
-- Gerçek dünyadaki kurumsal yapıları ürün mantığına çevirebildiğimi
-- Statik ekran yerine karar destek akışı kurabildiğimi
+- Kurumsal operasyon dilini ürün mantığına çevirebildiğimi
+- Statik ekran yerine canlı karar destek deneyimi oluşturabildiğimi
 
-## Öne Çıkan Özellikler
+## Öne Çıkan Modüller
 
 - Leaflet tabanlı etkileşimli harita
 - Canlı meteoroloji verisi entegrasyonu
 - Sabah, öğlen ve akşam için senaryo tabanlı risk değişimi
-- OGM işletme müdürlüğü mantığına hizalı örnek saha modeli
+- 7 günlük risk trendi
+- İl bazlı risk sıralama tablosu
+- Ekip ve araç konuşlanma özeti
+- Olay günlüğü ve alarm geçmişi
+- Yönetici özeti ve paylaşılabilir rapor merkezi
 - 30 OGM Bölge Müdürlüğü için ulusal ağ katmanı
-- Risk seviyesi, operasyon durumu ve bölge bazlı filtreleme
-- Müdahale öncelik listesi
-- Yönetici özeti, canlı bülten ve geçmiş olay referansları
 
 ## Kullanılan Teknolojiler
 
@@ -59,29 +60,22 @@ npm run lint
 
 ## Yayına Alma
 
-Repo artık GitHub Pages için hazırdır. Projeyi GitHub'a gönderdiğinde `main` dalına yapılan her push sonrası otomatik yayın alacak.
+Repo GitHub Pages için hazırdır. `main` dalına yapılan her push sonrasında otomatik yayın alacak şekilde yapılandırılmıştır.
 
-Gerekli adımlar:
-
-1. Bu klasörü yeni bir GitHub reposuna bağla.
-2. Varsayılan dalı `main` olarak kullan.
-3. GitHub içinde `Settings > Pages` bölümünde `GitHub Actions` kaynağını seç.
-4. `main` dalına push yap.
-
-İlk yayın sonrası adresin şu formatta olur:
+İlk yayın sonrası adres şu formatta olur:
 
 `https://kullanici-adin.github.io/repo-adi/`
 
 ## Proje Yapısı
 
 - `index.html`
-  Uygulama iskeleti
+  Uygulama iskeleti ve panel yerleşimleri
 
 - `style.css`
-  Tüm görsel sistem ve duyarlı yerleşim
+  Tüm görsel sistem, paneller ve duyarlı yerleşim
 
 - `script.js`
-  Harita, veri akışı, senaryolar, canlı meteoroloji ve etkileşim mantığı
+  Harita, veri akışı, trendler, alarm geçmişi, rapor üretimi ve canlı meteoroloji mantığı
 
 - `scripts/lint.mjs`
   Proje için özel statik doğrulama akışı
@@ -93,9 +87,9 @@ Gerekli adımlar:
 
 Bu repo şu mesajı verir:
 
-> Sadece ön yüz yapmıyor; veri, harita, operasyon mantığı ve kurumsal ihtiyacı aynı üründe birleştirebiliyor.
+> Sadece ön yüz yapmıyor; veri, harita, saha operasyonu ve kurumsal karar mantığını aynı üründe birleştirebiliyor.
 
-Özellikle GIS, kamu teknolojileri, karar destek sistemleri, harita tabanlı ürünler ve saha operasyonlarına yakın roller için güçlü bir portföy parçası olacak şekilde tasarlandı.
+Özellikle GIS, kamu teknolojileri, karar destek sistemleri, harita tabanlı ürünler ve saha operasyonlarına yakın roller için güçlü bir portföy parçası olacak şekilde tasarlanmıştır.
 
 ## Notlar
 
@@ -105,11 +99,9 @@ Bu repo şu mesajı verir:
 
 ## Sonraki Aşamalar
 
-Bu projeyi daha da büyütmek için sıradaki mantıklı adımlar:
-
 1. Gerçek il ve orman işletme sınırları
-2. Tarihsel yangın verisi ile daha güçlü risk modeli
+2. Tarihsel yangın verisi ile daha gelişmiş risk modeli
 3. Uydu fark analizi
-4. PDF operasyon raporu
+4. PDF operasyon raporunu daha zengin çıktı haline getirme
 5. Backend ve veritabanı
-6. Canlı yayına alma
+6. Rol bazlı kullanıcı yönetimi
