@@ -28,8 +28,8 @@
         </div>
         <nav class="topbar">
           <a href="#executive-overview">Yönetici</a>
-          <a href="#command-center">Komuta</a>
           <a href="#map-panel">Harita</a>
+          <a href="#command-center">Komuta</a>
           <a href="#ranking-panel">Sıralama</a>
           <a href="#report-panel">Rapor</a>
         </nav>
@@ -110,7 +110,7 @@
         <article class="capability-card">
           <p class="mini-label">Çıktı</p>
           <strong>Rapor ve olay günlüğü</strong>
-          <p>Yönetici özeti, PDF çıktısı ve alarm geçmişi tek merkezde toplanır.</p>
+          <p>Yönetici özeti, operasyon çıktısı ve alarm geçmişi tek merkezde toplanır.</p>
         </article>
       </section>
     </header>
@@ -122,9 +122,7 @@
             <p class="eyebrow">Yönetici özeti</p>
             <h2>Üst düzey operasyon görünümü</h2>
           </div>
-          <p class="panel-note">
-            Kritik baskı, konuşlanma kapasitesi ve son 24 saat değişimi tek satırda okunur.
-          </p>
+          <p class="panel-note">Kritik baskı, konuşlanma kapasitesi ve son 24 saat değişimi tek satırda okunur.</p>
         </div>
         <div class="executive-cards">
           <article class="executive-card">
@@ -187,6 +185,61 @@
             </select>
           </label>
         </div>
+      </section>
+
+      <section class="content-grid map-priority-grid">
+        <section class="panel map-panel" id="map-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Canlı risk haritası</p>
+              <h2>Türkiye yangın yoğunluk kuşakları</h2>
+            </div>
+            <p class="panel-note">Katmanları yönet, bölge seç ve harita üstünden detay analizi güncelle.</p>
+          </div>
+
+          <div class="map-legend">
+            <span><i class="legend critical"></i>Kritik</span>
+            <span><i class="legend high"></i>Yüksek</span>
+            <span><i class="legend medium"></i>Orta</span>
+          </div>
+
+          <div class="map-toolbar">
+            <button class="layer-toggle is-on" type="button" data-layer-toggle="regions" aria-pressed="true">Risk bölgeleri</button>
+            <button class="layer-toggle is-on" type="button" data-layer-toggle="stations" aria-pressed="true">Gözlem istasyonları</button>
+            <button class="layer-toggle is-on" type="button" data-layer-toggle="directorates" aria-pressed="true">Tüm OGM bölgeleri</button>
+            <div class="map-toolbar-note" id="map-toolbar-note">6 risk bölgesi ve 8 gözlem istasyonu izleniyor.</div>
+          </div>
+
+          <div class="map-shell">
+            <div class="leaflet-map" id="leaflet-map" aria-label="Yangın risk haritası"></div>
+            <div class="map-stage" id="map-stage"></div>
+          </div>
+        </section>
+
+        <aside class="panel detail-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Bölge profili</p>
+              <h2 id="detail-title">Analiz bekleniyor</h2>
+            </div>
+            <p class="panel-note" id="detail-status">Haritadan bir alan seç.</p>
+          </div>
+
+          <div class="detail-score-wrap">
+            <div class="detail-score" id="detail-score">--</div>
+            <div>
+              <p class="mini-label">Baskın tehdit</p>
+              <strong id="detail-threat">-</strong>
+            </div>
+          </div>
+
+          <div class="detail-stats" id="detail-stats"></div>
+
+          <div class="detail-section">
+            <p class="mini-label">Önerilen aksiyonlar</p>
+            <ul id="detail-actions"></ul>
+          </div>
+        </aside>
       </section>
 
       <section class="command-grid" id="command-center">
@@ -268,61 +321,6 @@
           <div class="weather-source-status" id="weather-source-status">Canlı meteoroloji verisi bağlanıyor.</div>
           <div class="bulletin-cards" id="bulletin-cards"></div>
         </article>
-      </section>
-
-      <section class="content-grid">
-        <section class="panel map-panel" id="map-panel">
-          <div class="panel-heading">
-            <div>
-              <p class="eyebrow">Canlı risk haritası</p>
-              <h2>Türkiye yangın yoğunluk kuşakları</h2>
-            </div>
-            <p class="panel-note">Katmanları yönet, bölge seç ve harita üstünden detay analizi güncelle.</p>
-          </div>
-
-          <div class="map-legend">
-            <span><i class="legend critical"></i>Kritik</span>
-            <span><i class="legend high"></i>Yüksek</span>
-            <span><i class="legend medium"></i>Orta</span>
-          </div>
-
-          <div class="map-toolbar">
-            <button class="layer-toggle is-on" type="button" data-layer-toggle="regions" aria-pressed="true">Risk bölgeleri</button>
-            <button class="layer-toggle is-on" type="button" data-layer-toggle="stations" aria-pressed="true">Gözlem istasyonları</button>
-            <button class="layer-toggle is-on" type="button" data-layer-toggle="directorates" aria-pressed="true">Tüm OGM bölgeleri</button>
-            <div class="map-toolbar-note" id="map-toolbar-note">6 risk bölgesi ve 8 gözlem istasyonu izleniyor.</div>
-          </div>
-
-          <div class="map-shell">
-            <div class="leaflet-map" id="leaflet-map" aria-label="Yangın risk haritası"></div>
-            <div class="map-stage" id="map-stage"></div>
-          </div>
-        </section>
-
-        <aside class="panel detail-panel">
-          <div class="panel-heading">
-            <div>
-              <p class="eyebrow">Bölge profili</p>
-              <h2 id="detail-title">Analiz bekleniyor</h2>
-            </div>
-            <p class="panel-note" id="detail-status">Haritadan bir alan seç.</p>
-          </div>
-
-          <div class="detail-score-wrap">
-            <div class="detail-score" id="detail-score">--</div>
-            <div>
-              <p class="mini-label">Baskın tehdit</p>
-              <strong id="detail-threat">-</strong>
-            </div>
-          </div>
-
-          <div class="detail-stats" id="detail-stats"></div>
-
-          <div class="detail-section">
-            <p class="mini-label">Önerilen aksiyonlar</p>
-            <ul id="detail-actions"></ul>
-          </div>
-        </aside>
       </section>
 
       <section class="ops-grid">
